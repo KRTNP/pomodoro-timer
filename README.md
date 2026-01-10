@@ -1,32 +1,93 @@
-# Pomodoro Timer
+# Focus Timer: Productivity & Workflow Management
 
-Opinionated Pomodoro timer built with Vite + React. The app keeps your focus rhythm, persists progress locally, and automatically switches between focus blocks, short breaks, and long breaks.
+A modern, responsive web application designed to enhance personal productivity through the Pomodoro Technique. This project demonstrates a clean, component-driven architecture using React and Vite, focusing on performance and maintainable state logic.
 
-## Features
-- Auto-cycle focus → short breaks → long breaks after every 4th focus block
-- Start/pause/reset controls with manual mode switching and skip
-- Local storage persistence so reloads never lose your progress
-- Responsive glassmorphic UI with live progress ring and status hints
-- Ready-to-deploy Vite + Tailwind setup
+## Overview
 
-## Getting started
+This application provides a distraction-free interface for managing work sessions and breaks. Unlike standard timer implementations, it leverages a custom React Hook (`usePomodoro`) to encapsulate timer logic, state transitions, and audio feedback, ensuring the UI layer remains purely presentational.
+
+**Key Design Principles:**
+* **Separation of Concerns:** Business logic is isolated in custom hooks, making the codebase testable and reusable.
+* **Performance First:** Built with Vite for instant server start and optimized production builds.
+* **Utility-First Styling:** Utilizes Tailwind CSS for a highly responsive and maintainable design system without style bloat.
+
+## Technical Architecture
+
+The project is structured to demonstrate scalable frontend patterns:
+
+1.  **Custom Hooks (`src/hooks/usePomodoro.js`):**
+    * Manages the internal timer state (tick mechanism, duration switching).
+    * Handles mode transitions (Focus, Short Break, Long Break).
+    * Exposes a clean API (`timeLeft`, `isRunning`, `toggleTimer`, `resetTimer`) to consuming components.
+
+2.  **Component Composition:**
+    * `TimerDisplay`: Pure component responsible for rendering the digital clock face.
+    * `ModePills`: Handles user interaction for session type switching.
+    * `StatCard`: Visualizes session metrics.
+
+## Technology Stack
+
+**Frontend Framework**
+![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=black)
+![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/-Tailwind_CSS-06B6D4?style=flat&logo=tailwindcss&logoColor=white)
+
+**Language & Quality**
+![JavaScript](https://img.shields.io/badge/-JavaScript-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![ESLint](https://img.shields.io/badge/-ESLint-4B32C3?style=flat&logo=eslint&logoColor=white)
+
+## Getting Started
+
+### Prerequisites
+* Node.js (v16 or higher)
+* npm or yarn
+
+### Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/yourusername/pomodoro-focus-timer.git](https://github.com/yourusername/pomodoro-focus-timer.git)
+    cd pomodoro-focus-timer
+    ```
+
+2.  **Install Dependencies**
+    ```bash
+    npm install
+    ```
+
+3.  **Run Development Server**
+    ```bash
+    npm run dev
+    ```
+    Access the application at `http://localhost:5173`.
+
+### Building for Production
+
+To create an optimized static build:
 ```bash
-npm install
-npm run dev     # start local dev server
-npm run build   # production build
-npm run preview # preview the built app
+npm run build
+
 ```
 
-## Project structure
-- `src/constants/pomodoro.js` – timer presets and storage key
-- `src/hooks/usePomodoro.js` – state machine for timing, persistence, and auto-cycling
-- `src/components/*` – UI pieces for mode selection, stats, and timer display
-- `src/App.jsx` – page layout and control wiring
-- `index.html` – Vite entry (no CDN dependencies)
+The artifacts will be generated in the `dist/` directory, ready for deployment to Vercel, Netlify, or AWS S3.
 
-## Customization
-- Adjust default durations in `src/constants/pomodoro.js` (`seconds` per mode).
-- Tailwind tokens/utilities live in `src/index.css` and `tailwind.config.js` if you want to tweak the look and feel.
+## Logic Implementation
 
-## Deployment
-Any static host works. Run `npm run build` and deploy the contents of `dist/` to your provider of choice (GitHub Pages, Netlify, Vercel, Cloudflare Pages, etc).
+The core timer logic avoids drift by calculating delta time or using robust interval management within the React lifecycle:
+
+```javascript
+// Conceptual logic inside usePomodoro hook
+useEffect(() => {
+  let interval = null;
+  if (isActive && seconds > 0) {
+    interval = setInterval(() => {
+      setSeconds(seconds => seconds - 1);
+    }, 1000);
+  } else if (seconds === 0) {
+    clearInterval(interval);
+    setIsActive(false);
+  }
+  return () => clearInterval(interval);
+}, [isActive, seconds]);
+
+```
